@@ -1,7 +1,7 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
-import os.path
+import os.path, time
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -18,6 +18,7 @@ class gquiz:
             templateId : get the id from link GoogleForm
         '''
         self.image_temp_service_url = "https://tmpfiles.org/api/v1/upload"
+        # self.image_temp_service_url = "https://uguu.se/upload.php"
         self.submition = {"requests":[]}
         self.form_service = None
         self.drive_service = None 
@@ -74,6 +75,16 @@ class gquiz:
         ''' End Tokenizing
         '''
 
+    def createForm(self, name):
+        """ Create Form
+            Args: 
+            name : name form
+        """
+        try: 
+            self.main_form = self.form_service.forms().create(body={"info":{"title":name}}).execute()
+        except HttpError as error:
+            print('An error occurred: %s' % error)			
+
     def copyFile(self,origin_file_id, copy_title):
         """Copy an existing file.
         Args:
@@ -97,7 +108,6 @@ class gquiz:
 
         except HttpError as error:
             print('An error occurred: %s' % error)
-            return None
 
     def createOption(self, value, image=None):
         '''
@@ -124,6 +134,7 @@ class gquiz:
                             "alignment": "LEFT"
                             }
                         }})
+        time.sleep(3)
         return opt
 
     def createQuestion(self, title, description, options, indexAnswer, itemImage=None):
@@ -172,6 +183,7 @@ class gquiz:
                             }
                         }
                      })
+        time.sleep(3)
         return item
 
     def submitQuestion(self, index, item):
