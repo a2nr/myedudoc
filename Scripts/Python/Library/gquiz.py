@@ -120,7 +120,7 @@ class gquiz:
                     }
                 }}
         '''
-        opt = {"value" : value}
+        opt = {"value" : "{}".format(value)}
         if(image != None):
             print("print with image, uploading... ")
             req = requests.post(self.image_temp_service_url,files={"file": open(image,'rb')})
@@ -152,13 +152,13 @@ class gquiz:
         '''
         item = {
             "title" : title,
-            "description" : description,
+            "description" : "{}".format(description),
             "questionItem" : {
                 "question" : {
                     "grading" : {
                         "pointValue": 1,
                         "correctAnswers": {
-                            "answers" : [ {"value": options[indexAnswer-1]["value"]} ]
+                            "answers" : [ {"value": "{}".format(options[indexAnswer-1]["value"])} ]
                             }
                         },
                     "choiceQuestion" : {
@@ -198,7 +198,7 @@ class gquiz:
                 "item": item
                 }
         })
-        pprint(self.submition)
+        print(self.submition)
 
 
     def update(self):

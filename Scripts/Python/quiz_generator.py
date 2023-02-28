@@ -1,8 +1,14 @@
 # coding: utf-8
 from __future__ import unicode_literals
-from scriptforge import CreateScriptService
+import sys, os
 
+# uncomemnt for run separatly from soffice
+#sys.path.append("/lib64/libreoffice/program/")
+from scriptforge import ScriptForge, CreateScriptService
+from unohelper import fileUrlToSystemPath
 
+# uncomemnt for run separatly from soffice
+#ScriptForge(hostname='localhost', port=2021)
 def generateTemplate():
 	doc = CreateScriptService("Calc")
 	basic = CreateScriptService("Basic")
@@ -15,13 +21,12 @@ def generateTemplate():
 	    "<isAnswerE>", "<IMG option5>", "<Text Option5>", ),))
 			
 def updateQuestion():
-  import sys, os
-  from unohelper import fileUrlToSystemPath
+# strat comment for run separatly from soffice
   if not 'gquiz' in sys.modules:
     doc = XSCRIPTCONTEXT.getDocument()
     url = fileUrlToSystemPath('{}/{}'.format(doc.URL,'Scripts/python/Library'))
     sys.path.insert(0, url)
-    
+# end
   from gquiz import gquiz
   import requests
 	
@@ -31,7 +36,7 @@ def updateQuestion():
   q = gquiz()
   q.generateService()
   q.createForm("Demo Soal")
-	cwd = os.getcwd()
+  cwd = os.getcwd()
   for nrow in range(0, doc.LastRow(selctedCell)+1-doc.FirstRow(selctedCell)):
     item = doc.getValue(doc.Offset(doc.FirstCell(selctedCell),nrow,0,1,17))
     opt = []
@@ -41,11 +46,11 @@ def updateQuestion():
     for o in range(2,17,3):
       if (item[o] == 1):
         theAnswer = c
-      c = c+1
       if (item[o+1] != ""): 
-        opt.append(q.createOption(item[o+2],cwd+item[o+1]))
+        opt.append(q.createOption("{}. {}".format(chr(64+c),item[o+2]),cwd+item[o+1]))
       else:
-        opt.append(q.createOption(item[o+2]))
+        opt.append(q.createOption("{}. {}".format(chr(64+c),item[o+2])))
+      c = c+1
     
     if (theAnswer == -1):
       raise Exception("Chose the correct answer")	
@@ -55,7 +60,7 @@ def updateQuestion():
     else:
       img = None
       
-    qq = q.createQuestion(title = "Soal No 1",\
+    qq = q.createQuestion(title = "Soal No {}".format(nrow+1),\
       description = item[0],\
       indexAnswer = theAnswer, \
       options = opt, itemImage=img)
