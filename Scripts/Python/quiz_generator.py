@@ -25,12 +25,12 @@ else:
 #[end]
 #[start] uncomemnt for run separatly from soffice
 #sys.path.insert(0, '{}/{}'.format(os.getcwd(),'Library'))
+#ScriptForge(hostname='localhost', port=2002)
 #[end]
 
 from gquiz import gquiz
 from moodleQuiz import moodleQuiz
 
-ScriptForge(hostname='localhost', port=2002)
 ui = CreateScriptService("UI")
 doc = CreateScriptService("Calc")
 bas = CreateScriptService("Basic")
