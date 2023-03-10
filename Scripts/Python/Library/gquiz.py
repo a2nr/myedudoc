@@ -23,6 +23,9 @@ class gquiz:
         self.form_service = None
         self.drive_service = None 
         self.main_form = None
+        self.infoPrint = self._defaultPrint
+        self.progress = -1
+        self.resultUri = ""
 
         self.submition["requests"].append({
             "updateSettings": {
@@ -34,6 +37,14 @@ class gquiz:
                     }
                 }
             })
+
+    def setProgress(self, i : int):
+        self.progress = i
+    def AttachProcessInfo(self, callback):
+        self.infoPrint = callback
+
+    def _defaultPrint(self, text : str, progress: int):
+        print("{}% {}".format(progress, text))
 
     def generateService(self):
         ''' Start Tokenizing
@@ -52,19 +63,23 @@ class gquiz:
         # time.
         if os.path.exists('token.json'):
             creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+            self.infoPrint("token already exist",self.progress)
         # If there are no (valid) credentials available, let the user log in.
         if not creds or not creds.valid:
             if creds and creds.expired and creds.refresh_token:
                 creds.refresh(Request())
+                self.infoPrint("refresh token",self.progress)
             else:
                 flow = InstalledAppFlow.from_client_secrets_file(
                     './secret/client_secrets.json', SCOPES)
                 creds = flow.run_local_server(port=0)
+                self.infoPrint("generate token",self.progress)
             # Save the credentials for the next run
             with open('token.json', 'w') as token:
                 token.write(creds.to_json())
 
         try:
+            self.infoPrint("creating service",self.progress)
             service = build('docs', 'v1', credentials=creds)
             self.form_service, self.drive_service = \
                     build('forms', 'v1', credentials=creds, discoveryServiceUrl=DISCOVERY_DOC, static_discovery=False),\
@@ -81,6 +96,7 @@ class gquiz:
             name : name form
         """
         try: 
+            self.infoPrint("creating form",self.progress)
             self.main_form = self.form_service.forms().create(body={"info":{"title":name}}).execute()
         except HttpError as error:
             print('An error occurred: %s' % error)			
@@ -120,13 +136,15 @@ class gquiz:
                     }
                 }}
         '''
+        self.infoPrint("creating option",self.progress)
         opt = {"value" : "{}".format(value)}
         if(image != None):
-            print("print with image, uploading... ")
+            self.infoPrint("uploading option image... ",self.progress)
             req = requests.post(self.image_temp_service_url,files={"file": open(image,'rb')})
             if(req.json()['status'] == 'error'):
                 raise Exception("upload failed : {}".format(req.json()))
-            print("success")
+            time.sleep(3)
+            self.infoPrint("uploading option image... ok",self.progress)
             u = urlparse(req.json()['data']['url'])
             opt.update({"image" : {
                         "sourceUri": u._replace(path="/dl"+u.path).geturl(),
@@ -168,12 +186,14 @@ class gquiz:
                     }
                 }
             }
+        self.infoPrint("create question...",self.progress)
         if (itemImage != None):
-            print("uploading image for quesiton : ")
+            self.infoPrint("uploading question image...",self.progress)
             req = requests.post(self.image_temp_service_url,files={"file": open(itemImage,'rb')})
             if(req.json()['status'] == 'error'):
                 raise Exception("upload failed : {}".format(req.json()))
-            print("succes")
+            time.sleep(3)
+            self.infoPrint("uploading question image... ok",self.progress)
             u = urlparse(req.json()['data']['url'])
             item['questionItem'].update(\
                     {"image": {
@@ -183,7 +203,6 @@ class gquiz:
                             }
                         }
                      })
-        time.sleep(3)
         return item
 
     def submitQuestion(self, index, item):
@@ -198,14 +217,18 @@ class gquiz:
                 "item": item
                 }
         })
+        self.infoPrint("submit question",self.progress)
         print(self.submition)
 
 
     def update(self):
+        self.infoPrint("Updating Form...",self.progress)
         # Adds the question to the form
         question_setting = self.form_service.forms().batchUpdate(formId=self.main_form["formId"], body=self.submition).execute()
         print(question_setting)
 
         # Prints the result to show the question has been added
         get_result = self.form_service.forms().get(formId=self.main_form["formId"]).execute()
+        self.resultUri = get_result['responderUri']
         print(get_result)
+        self.infoPrint("Updating Form... Done",self.progress)
