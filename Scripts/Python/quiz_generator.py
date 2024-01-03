@@ -20,8 +20,7 @@ if (not 'gquiz' in sys.modules) or (not 'moodleQuiz' in sys.modules):
     sys.path.insert(0, url)
 else:
     importlib.reload(gquiz)
-    importlib.reload(moodleQuiz)
-
+    importlib.reload(modleQuiz)
 #[end]
 #[start] uncomemnt for run separatly from soffice
 #sys.path.insert(0, '{}/{}'.format(os.getcwd(),'Library'))
@@ -49,7 +48,7 @@ def _statusBarInfoUpdate(text : str, progress : int):
 
 def _updateQuestion(q):
     selctedCell = doc.CurrentSelection
-    cwd = os.getcwd()
+#   cwd = os.getcwd()
     maxRow = doc.LastRow(selctedCell)+1-doc.FirstRow(selctedCell)
     for nrow in range(0, maxRow):
         q.setProgress(int(((nrow+1)/maxRow)*100))
@@ -61,7 +60,8 @@ def _updateQuestion(q):
             if (item[o] == 1):
                 theAnswer = c
             if (item[o+1] != ""): 
-                opt.append(q.createOption("{}. {}".format(chr(64+c),item[o+2]),cwd+item[o+1]))
+#               opt.append(q.createOption("{}. {}".format(chr(64+c),item[o+2]),cwd+item[o+1]))
+                opt.append(q.createOption("{}. {}".format(chr(64+c),item[o+2]),item[o+1]))
             else:
                 opt.append(q.createOption("{}. {}".format(chr(64+c),item[o+2])))
             c = c+1
@@ -70,7 +70,8 @@ def _updateQuestion(q):
             raise Exception("Chose the correct answer")	
     
         if( item[1] != ""):
-            img = cwd+item[1]
+#           img = cwd+item[1]
+            img = item[1]
         else:
             img = None
     

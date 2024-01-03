@@ -17,7 +17,8 @@ class gquiz:
         Args : 
             templateId : get the id from link GoogleForm
         '''
-        self.image_temp_service_url = "https://tmpfiles.org/api/v1/upload"
+        self.image_temp_service_url = "https://t480.manakin-gentoo.ts.net"
+        # self.image_temp_service_url = "https://tmpfiles.org/api/v1/upload"
         # self.image_temp_service_url = "https://uguu.se/upload.php"
         self.submition = {"requests":[]}
         self.form_service = None
@@ -139,20 +140,27 @@ class gquiz:
         self.infoPrint("creating option",self.progress)
         opt = {"value" : "{}".format(value)}
         if(image != None):
-            self.infoPrint("uploading option image... ",self.progress)
-            req = requests.post(self.image_temp_service_url,files={"file": open(image,'rb')})
-            if(req.json()['status'] == 'error'):
-                raise Exception("upload failed : {}".format(req.json()))
-            time.sleep(3)
-            self.infoPrint("uploading option image... ok",self.progress)
-            u = urlparse(req.json()['data']['url'])
+#           self.infoPrint("uploading option image... ",self.progress)
+#           req = requests.post(self.image_temp_service_url,files={"file": open(image,'rb')})
+#           if(req.json()['status'] == 'error'):
+#               raise Exception("upload failed : {}".format(req.json()))
+#           time.sleep(3)
+#           self.infoPrint("uploading option image... ok",self.progress)
+#           u = urlparse(req.json()['data']['url'])
+#           opt.update({"image" : {
+#                       "sourceUri": u._replace(path="/dl"+u.path).geturl(),
+#                       "properties": {
+#                           "alignment": "LEFT"
+#                           }
+#                       }})
+
             opt.update({"image" : {
-                        "sourceUri": u._replace(path="/dl"+u.path).geturl(),
+                        "sourceUri": self.image_temp_service_url+image,
                         "properties": {
                             "alignment": "LEFT"
                             }
                         }})
-        time.sleep(3)
+#       time.sleep(3)
         return opt
 
     def createQuestion(self, title, description, options, indexAnswer, itemImage=None):
@@ -188,16 +196,24 @@ class gquiz:
             }
         self.infoPrint("create question...",self.progress)
         if (itemImage != None):
-            self.infoPrint("uploading question image...",self.progress)
-            req = requests.post(self.image_temp_service_url,files={"file": open(itemImage,'rb')})
-            if(req.json()['status'] == 'error'):
-                raise Exception("upload failed : {}".format(req.json()))
-            time.sleep(3)
-            self.infoPrint("uploading question image... ok",self.progress)
-            u = urlparse(req.json()['data']['url'])
+#           self.infoPrint("uploading question image...",self.progress)
+#           req = requests.post(self.image_temp_service_url,files={"file": open(itemImage,'rb')})
+#           if(req.json()['status'] == 'error'):
+#               raise Exception("upload failed : {}".format(req.json()))
+#           time.sleep(3)
+#           self.infoPrint("uploading question image... ok",self.progress)
+#           u = urlparse(req.json()['data']['url'])
+#           item['questionItem'].update(\
+#                   {"image": {
+#                       "sourceUri": u._replace(path="/dl"+u.path).geturl(),
+#                       "properties": {
+#                           "alignment": "CENTER"
+#                           }
+#                       }
+#                    })
             item['questionItem'].update(\
                     {"image": {
-                        "sourceUri": u._replace(path="/dl"+u.path).geturl(),
+                        "sourceUri": self.image_temp_service_url+itemImage,
                         "properties": {
                             "alignment": "CENTER"
                             }
